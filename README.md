@@ -2,4 +2,4 @@
 
 docker build -t mydjangoproject:v1 .
 
-docker run -p 8001:8001 --name mydjangoproject mydjangoproject:v1
+docker run -dp 8001:8001 --name mydjangoproject mydjangoproject:v1
