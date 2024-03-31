@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2>任务管理</h2>
+<div>
+    <input class="btn btn-primary" type="button" value="GET" onclick="clickMe1();">
+    <input class="btn btn-primary" type="button" value="POST" onclick="clickMe2();">
+</div>
+<div>
+    <input id="text_user" type="text" placeholder="姓名">
+    <input id="text_age" type="text" placeholder="年龄">
+    <input id="btn1" class="btn btn-primary" type="button" value="POST">
+</div>
+<form id="form">
+    <input name="user" type="text" placeholder="姓名">
+    <input name="age" type="text" placeholder="年龄">
+    <input id="btn2" class="btn btn-primary" type="button" value="POST">
+</form>
+
+
+<input id="btn3" class="btn btn-primary" type="button" value="模态框1">
+
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+    模态框2
+</button>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="text" name="username">
+    <input type="checkbox" name="check">
+    <input type="file" name="avatar">
+    <input type="submit" value="提交">
+</form>
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $("#nav_test").addClass("active");
+</script>
+
+<script>
+    function clickMe1() {
+        $.ajax({
+            url: '/test/ajax/',
+            type: "get",
+            data: {
+                n1: 111,
+                n2: 222
+            },
+            success: function (res) {
+                console.log(res)
+            }
+        })
+
+    }
+    function clickMe2() {
+        $.ajax({
+            url: '/test/ajax/',
+            type: "post",
+            data: {
+                n1: 111,
+                n2: 222
+            },
+            success: function (res) {
+                console.log(res)
+            }
+        })
+
+    }
+</script>
+<script>
+    $(function () {
+        bindBtn1Event();
+        bindBtn2Event();
+        bindBtn3Event();
+
+    })
+    function bindBtn1Event() {
+        $("#btn1").click(function () {
+            $.ajax({
+                url: '/test/ajax/',
+                type: "post",
+                data: {
+                    user: $("#text_user").val(),
+                    age: $("#text_age").val()
+                },
+                dataType: "JSON",
+                success: function (res) {
+                    console.log(res)
+                    console.log(res.status)
+                    console.log(res.data)
+                }
+            })
+        })
+    }
+    function bindBtn2Event() {
+        $("#btn2").click(function () {
+            $.ajax({
+                url: '/test/ajax/',
+                type: "post",
+                data: $("#form").serialize(),
+                dataType: "JSON",
+                success: function (res) {
+                    console.log(res)
+                    console.log(res.status)
+                    console.log(res.data)
+                }
+            })
+        })
+    }
+
+    function bindBtn3Event() {
+        $("#btn3").click(function () {
+            $('#myModal').modal('show');
+        })
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div style="margin-bottom: 50px;">
+    <div class="col-xs-9 clear_padding">
+        <a class="btn btn-success" href="/user/add/">
+            <span style="font-size: 10px;">新建用户</span>
+        </a>
+    </div>
+
+    <div class="col-xs-3 clear_padding">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for name" name="search"
+                    value="{{ search }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        用户列表
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>姓名</th>
+                <th>密码</th>
+                <th>年龄</th>
+                <th>余额</th>
+                <th>入职时间</th>
+                <th>性别</th>
+                <th>部门</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in queryset %}
+            <tr>
+                <td>{{ obj.id }}</td>
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.password }}</td>
+                <td>{{ obj.age }}</td>
+                <td>{{ obj.account }}</td>
+                <td>{{ obj.create_time|date:"Y-m-d" }}</td>
+                <!-- "Y-m-d H:i:s" -->
+                <td>{{ obj.get_gender_display }}</td>
+                <td>{{ obj.depart.title }}</td>
+                <td>
+                    <a class="btn btn-primary btn-xs" href="/user/{{ obj.id }}/edit/"><i class="fa fa-pencil-square-o"
+                            aria-hidden="true"></i></a>
+                    <a class="btn btn-danger btn-xs" href="/user/{{ obj.id }}/delete/"><i class="fa fa-trash-o"
+                            aria-hidden="true"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="text-align: center;">
+    <ul class="pagination">
+        {{ page_string }}
+    </ul>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $("#nav_user").addClass("active");
+    $("#jumpBtn").click(function () {
+            $.ajax({
+                url: "/user/jump/?search={{ search }}",
+                type: "get",
+                data: $("#jumpForm").serialize(),
+                dataType: "JSON",
+                success: function (res) {
+                    var url = "/user/list/?search=" + res.search + "&page=" + res.page
+                    window.location.href = url;
+                }
+            })
+        })
+</script>
+{% endblock %}

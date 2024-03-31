@@ -1,0 +1,10 @@
+[
+    {
+      "model": "app01.admin",
+      "pk": 1,
+      "fields": {
+        "username": "root",
+        "password": "ff5cc1966cdf1aec78baa4a805af0be3"
+      }
+    }
+  ]

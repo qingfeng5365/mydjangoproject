@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div style="margin-bottom: 50px;">
+    <div class="col-xs-9 clear_padding">
+        <a class="btn btn-success" href="/admin/add/">
+            <span style="font-size: 10px;">新建管理员</span>
+        </a>
+    </div>
+
+    <div class="col-xs-3 clear_padding">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for name" name="search"
+                    value="{{ search }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        管理员列表
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>账户</th>
+                <th>密码</th>
+                <th>重置密码</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in queryset %}
+            <tr>
+                <td>{{ obj.id }}</td>
+                <td>{{ obj.username }}</td>
+                <td>******</td>
+                <td>
+                    <a href="/admin/{{ obj.id }}/reset/">重置密码</a>
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-xs" href="/admin/{{ obj.id }}/edit/"><i class="fa fa-pencil-square-o"
+                            aria-hidden="true"></i></a>
+                    <a class="btn btn-danger btn-xs" href="/admin/{{ obj.id }}/delete/"><i class="fa fa-trash-o"
+                            aria-hidden="true"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="text-align: center;">
+    <ul class="pagination">
+        {{ page_string }}
+    </ul>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $("#nav_admin").addClass("active");
+    $("#jumpBtn").click(function () {
+            $.ajax({
+                url: "/admin/jump/?search={{ search }}",
+                type: "get",
+                data: $("#jumpForm").serialize(),
+                dataType: "JSON",
+                success: function (res) {
+                    var url = "/admin/list/?search=" + res.search + "&page=" + res.page
+                    window.location.href = url;
+                }
+            })
+        })
+</script>
+{% endblock %}

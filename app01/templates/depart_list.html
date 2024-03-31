@@ -1,0 +1,228 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+
+<div style="margin-bottom: 50px;">
+    <div class="col-xs-9 clear_padding">
+        <a class="btn btn-success" href="/depart/add/">
+            <span style="font-size: 10px;">新建部门</span>
+        </a>
+    </div>
+
+    <div class="col-xs-3 clear_padding">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for name" name="search"
+                    value="{{ search }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        用户列表
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>名称</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in queryset %}
+            <tr>
+                <td>
+                    <input type="checkbox" nid="{{obj.id}}" check="" onclick="f1(this);">
+                    {{ obj.id }}
+                </td>
+                <td>{{ obj.title }}</td>
+                <td>
+                    <a class="btn btn-primary btn-xs" href="/depart/{{ obj.id }}/edit/"><i class="fa fa-pencil-square-o"
+                            aria-hidden="true"></i></a>
+                    <a class="btn btn-danger btn-xs" href="/depart/delete/?nid={{ obj.id }}"><i class="fa fa-trash-o"
+                            aria-hidden="true"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <a id="batchAdd" class="btn btn-success">
+        <span style="font-size: 10px;">批量上传</span>
+    </a>
+    <a id="batchDelete" class="btn btn-danger">
+        <span style="font-size: 10px;">批量删除</span>
+    </a>
+</div>
+
+<div style="text-align: center;">
+    <ul class="pagination">
+        {{ page_string }}
+    </ul>
+</div>
+
+<!--批量导入 模态框-->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">批量上传</h4>
+            </div>
+            <div class="modal-body">
+                <div class="clearfix">
+                    <input id="upfile" type="file">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                <button id="saveConfirmBtn" type="button" class="btn btn-primary">保 存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--删除 模态框-->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">批量删除</h4>
+            </div>
+            <div class="modal-body">
+                <span>删除后无法恢复！</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                <button id="deleteConfirmBtn" type="button" class="btn btn-danger">确 认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    var nid_list = new Set([]);
+    $("#nav_depart").addClass("active");
+    $("#jumpBtn").click(function () {
+        $.ajax({
+            url: "/depart/jump/?search={{ search }}",
+            type: "get",
+            data: $("#jumpForm").serialize(),
+            dataType: "JSON",
+            success: function (res) {
+                var url = "/depart/list/?search=" + res.search + "&page=" + res.page
+                window.location.href = url;
+            }
+        })
+    })
+    $("#batchAdd").click(() => {
+        $('#addModal').modal('show');
+    })
+    $("#saveConfirmBtn").click(() => {
+        var formData = new FormData();
+        //var name = $("#upfile").val();
+        formData.append("file", $("#upfile")[0].files[0]);
+        //formData.append("name", name);
+        $.ajax({
+            url: "/depart/batchAdd/",
+            type: "post",
+            data: formData,
+            processData: false, // 使数据不做处理
+            contentType: false, // 不要设置Content-Type请求头
+
+            success: function (res) {
+                if (res.status) {
+                    //alert("添加成功");
+
+                    //关闭模态框
+                    $('#addModal').modal('hide');
+
+                    //刷新当前网址 
+                    location.reload();
+                }
+                else {
+                    alert(res.error)
+                    //关闭模态框
+                    $('#addModal').modal('hide');
+                    //刷新当前网址 
+                    location.reload();
+                }
+            }
+        })
+    })
+    $("#batchDelete").click(() => {
+        $("#deleteModal").modal('show');
+    })
+    function f1(self) {
+        let check = $(self).attr("check")
+        let nid = $(self).attr("nid")
+        if (check) {
+            $(self).attr("check", "")
+            nid_list.delete(nid)
+        }
+        else {
+            $(self).attr("check", "true")
+            nid_list.add(nid)
+        }
+        //console.log(check)
+        console.log(nid_list)
+
+    }
+    $("#deleteConfirmBtn").click(() => {
+        $.ajax({
+            url: "/depart/batchDelete/",
+            type: "post",
+            traditional: true,
+            data: {
+                nid_list: Array.from(nid_list),
+            },
+            dataType: "JSON",
+            success: res => {
+                if (res.status) {
+                    alert("删除成功");
+                    //关闭模态框
+                    $('#deleteModal').modal('hide');
+
+                    //for(const nid of Array.from(nid_list)){
+                    //    $("input[nid='" + nid +"']").parent().parent().remove();                       
+                    //}
+                    //nid_list.clear()
+
+                    //重定向
+                    window.location.replace(window.location.href);
+                    //刷新当前网址 
+                    //location.reload();
+                }
+                else {
+                    alert(res.error)
+                    //关闭模态框
+                    $('#deleteModal').modal('hide');
+                    window.location.replace(window.location.href);
+                    //刷新当前网址 
+                    //location.reload();
+                }
+            }
+        })
+    })
+
+
+</script>
+{% endblock %}
